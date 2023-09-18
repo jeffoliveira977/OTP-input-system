@@ -133,10 +133,10 @@ document.addEventListener("DOMContentLoaded", function () {
             const clipboardEvent = e;
 
             // Extracts text data from the clipboard and processes it for input.
-            const DataTransfer = clipboardEvent.clipboardData;
-            if (DataTransfer) {
+            const dataTransfer = clipboardEvent.clipboardData;
+            if (dataTransfer) {
 
-                const pasteData = DataTransfer.getData("text/plain")
+                const pasteData = dataTransfer.getData("text/plain")
                 if (pasteData) {
 
                     pasteData.getData("text/plain")
