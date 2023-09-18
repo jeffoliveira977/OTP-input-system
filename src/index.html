@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Input Field</title>
+    <link href="../dist/css/output.css" rel="stylesheet">
+    <script src="../dist/js/otp.js"></script>
+</head>
+<body>
+    <div class="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 py-12">
+        <div class="relative bg-white px-6 pt-10 pb-9 shadow-2xl mx-auto w-full max-w-lg rounded-2xl">
+          <div class="mx-auto flex w-full max-w-md flex-col space-y-7">
+            <div class="flex flex-col items-center justify-center text-center">
+              <div class="font-semibold text-3xl">
+                <p>OTP Verification</p>
+              </div>
+            </div>    
+            <div>
+              <form class="otp-form" action="" method="post">
+                <div class="flex flex-col space-y-6">
+                  <div class="flex flex-row items-center justify-between mx-auto w-full max-w-sm">
+                    <input type="text" class="otp-input w-14 h-14" maxlength="1">
+                    <input type="text" class="otp-input w-14 h-14" maxlength="1">
+                    <input type="text" class="otp-input w-14 h-14" maxlength="1">
+                    <input type="text" class="otp-input w-14 h-14" maxlength="1">
+                    <input type="text" class="otp-input w-14 h-14" maxlength="1">
+                    <input type="text" class="otp-input w-14 h-14" maxlength="1">
+                  </div>
+                  <div class="flex justify-center">
+                    <input type="text" id="otpCode" class="text-center px-5 outline-none rounded-lg border border-gray-300 text-lg bg-white focus:bg-gray-50 focus:ring-1 ring-blue-700 h-12 w-4/5" readonly>
+                  </div>
+                  <div class="flex items-center flex-col space-y-5">  
+                    <button class="flex px-5 text-center border rounded-xl outline-none py-4 bg-blue-700 hover:bg-blue-800 border-none text-white text-md">
+                      Verify OTP
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+</body>
+</html>
