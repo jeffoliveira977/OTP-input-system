@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "mouseup",
     "mousemove",
     "mouseenter",
-    "mouseleave",
+    "mouseleave"
   ];
 
   /**
@@ -142,21 +142,24 @@ document.addEventListener("DOMContentLoaded", function () {
       const clipboardEvent = e as ClipboardEvent;
 
       // Extracts text data from the clipboard and processes it for input.
-      const pasteData = clipboardEvent.clipboardData
-        ?.getData("text/plain")
-        .slice(0, this.inputs.length - this.inputIndex) // Limits the pasted data length to the available input fields.
-        .split("");
+      const DataTransfer = clipboardEvent.clipboardData;
+      if (DataTransfer) {
+      
+        const pasteData = DataTransfer.getData("text/plain")
+          .slice(0, this.inputs.length - this.inputIndex) // Limits the pasted data length to the available input fields.
+          .split("");
 
-      if (pasteData) {
-        // Checks if all pasted values are numeric.
-        if (!pasteData.every((value) => /^\d$/.test(value))) {
-          return;
-        }
+        if (pasteData) {
+          // Checks if all pasted values are numeric.
+          if (!pasteData.every((value) => /^\d$/.test(value))) {
+            return;
+          }
 
-        // Populates the input fields with the pasted data.
-        for (let i = 0; i < pasteData.length; i++) {
-          if (this.inputIndex + i < this.inputs.length) {
-            this.inputs[this.inputIndex + i].value = pasteData[i];
+          // Populates the input fields with the pasted data.
+          for (let i = 0; i < pasteData.length; i++) {
+            if (this.inputIndex + i < this.inputs.length) {
+              this.inputs[this.inputIndex + i].value = pasteData[i];
+            }
           }
         }
       }

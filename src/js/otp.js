@@ -133,22 +133,26 @@ document.addEventListener("DOMContentLoaded", function () {
             const clipboardEvent = e;
 
             // Extracts text data from the clipboard and processes it for input.
-            const pasteData = clipboardEvent.clipboardData
-            if (pasteData) {
+            const DataTransfer = clipboardEvent.clipboardData;
+            if (DataTransfer) {
 
-                pasteData.getData("text/plain")
-                    .slice(0, this.inputs.length - this.inputIndex) // Limits the pasted data length to the available input fields.
-                    .split("");
+                const pasteData = DataTransfer.getData("text/plain")
+                if (pasteData) {
 
-                // Checks if all pasted values are numeric.
-                if (!pasteData.every((value) => /^\d$/.test(value))) {
-                    return;
-                }
+                    pasteData.getData("text/plain")
+                        .slice(0, this.inputs.length - this.inputIndex) // Limits the pasted data length to the available input fields.
+                        .split("");
 
-                // Populates the input fields with the pasted data.
-                for (let i = 0; i < pasteData.length; i++) {
-                    if (this.inputIndex + i < this.inputs.length) {
-                        this.inputs[this.inputIndex + i].value = pasteData[i];
+                    // Checks if all pasted values are numeric.
+                    if (!pasteData.every((value) => /^\d$/.test(value))) {
+                        return;
+                    }
+
+                    // Populates the input fields with the pasted data.
+                    for (let i = 0; i < pasteData.length; i++) {
+                        if (this.inputIndex + i < this.inputs.length) {
+                            this.inputs[this.inputIndex + i].value = pasteData[i];
+                        }
                     }
                 }
             }
