@@ -1,7 +1,9 @@
-// Copyright (c) 2023-2024 Jeff Oliveira
-// OTP Input Field
-// Version 1.0
-// https://github.com/jeffoliveira977/OTP-input-system
+/*
+Copyright (c) 2023-2024 Jeff Oliveira
+OTP Input Field
+Version 2.0
+https://github.com/jeffoliveira977/OTP-input-system
+*/
 
 // List of valid event types
 const validEvents: string[] = [
@@ -93,6 +95,8 @@ class OTPInputHandler {
   // Index of the current input field
   private inputIndex: number;
 
+  private alphaNumericPattern: string;
+
   /**
    * Constructor for the OTPInputHandler class.
    * @param selector - The CSS selector for OTP input fields.
@@ -100,6 +104,7 @@ class OTPInputHandler {
   constructor(selector: string) {
     this.selector = selector;
     this.inputIndex = 0;
+    this.alphaNumericPattern = /^[a-zA-Z0-9]$/;
     this.inputs = document.querySelectorAll<HTMLInputElement>(this.selector);
     this.attachEventHandlers();
   }
@@ -116,18 +121,18 @@ class OTPInputHandler {
    * Handles keydown events for OTP input fields.
    */
   private handleKeyDown = (e: Event) => {
-    // Checks if the event is a KeyboardEvent and prevents the default action if
-    // neither the Ctrl key nor the Meta key (Command key on Mac) is pressed,
-    // indicating that it's not a Ctrl+C or Ctrl+V event.
     const keyboard = e as KeyboardEvent;
-    if (!keyboard.ctrlKey && !keyboard.metaKey) {
+
+    if (keyboard.ctrlKey || keyboard.metaKey) {
+      // If Ctrl or Meta are pressed, return immediately
+      return;
+    } else {
+      // If neither Ctrl nor Meta are pressed, prevent the default behavior
       e.preventDefault();
     }
 
     // Get the index of the current input field
     this.inputIndex = this.getInputIndex(e.target as HTMLInputElement);
-    const inputValue = this.inputs[this.inputIndex].value;
-
     switch (keyboard.key) {
       case "Backspace":
         this.inputs[this.inputIndex].value = "";
@@ -144,12 +149,17 @@ class OTPInputHandler {
         break;
       default:
         if (
-          /^\d$/.test(keyboard.key) && // Accepts only numeric characters
           !this.allFilled() &&
-          !(this.inputIndex === this.inputs.length - 1 && inputValue !== "")
+          this.alphaNumericPattern.test(keyboard.key) // Only accept alphanumeric characters.
         ) {
-          this.inputs[this.inputIndex].value = keyboard.key;
-          this.moveFocusRight();
+          if (this.isEmptyInput(this.inputIndex)) {
+            this.inputs[this.inputIndex].value = keyboard.key;
+          }
+
+          // The focus can only move if the next input field is empty.
+          if (this.isEmptyInput(this.inputIndex + 1)) {
+            this.moveFocusRight();
+          }
         }
         break;
     }
@@ -173,16 +183,14 @@ class OTPInputHandler {
       .split("");
 
     if (pasteData) {
-      // Checks if all pasted values are numeric.
-      if (!pasteData.every((value) => /^\d$/.test(value))) {
+      // Checks if all pasted values are alphanumeric.
+      if (!pasteData.every((value) => this.alphaNumericPattern.test(value))) {
         return;
       }
 
       // Populates the input fields with the pasted data.
       for (var i = 0; i < pasteData.length; i++) {
-        if (this.inputIndex + i < this.inputs.length) {
-          this.inputs[this.inputIndex + i].value = pasteData[i];
-        }
+        this.setInputValue(this.inputIndex + i, pasteData[i]);
       }
     }
   };
@@ -196,21 +204,59 @@ class OTPInputHandler {
   }
 
   /**
+   * Checks if it is the last input field.
+   * @returns TRUE if it is the last field, otherwise false.
+   */
+  public isLastInput(): boolean {
+    return this.inputIndex === this.inputs.length - 1;
+  }
+
+  /**
+   * Checks if the input field at the specified index is empty.
+   * @param inputIndex The index of the input field to check.
+   * @returns TRUE if the input field is empty, otherwise FALSE.
+   */
+  public isEmptyInput(inputIndex: number): boolean {
+    return (
+      inputIndex < this.inputs.length && this.inputs[inputIndex].value === ""
+    );
+  }
+
+  /**
+   * Sets the value of the input field at the current index.
+   * @param inputIndex The index of the input field to check.
+   * @param value The value to set.
+   */
+  public setInputValue(inputIndex: number, value: string) {
+    if (inputIndex >= 0 && inputIndex < this.inputs.length) {
+      this.inputs[inputIndex].value = value;
+    }
+  }
+
+  /**
+   * Moves the focus between inputs based on the direction parameter.
+   * @param direction: The direction to set the focus movement. Positive value for moving to the right, negative value for moving to the left.
+   */
+  private moveFocus = (direction: number) => {
+    const nextIndex = this.inputIndex + direction;
+
+    if (nextIndex >= 0 && nextIndex < this.inputs.length) {
+      this.inputs[nextIndex].focus();
+    }
+  };
+
+  /**
    * Moves the focus to the left input field.
    */
   public moveFocusLeft = () => {
-    if (this.inputIndex !== 0) {
-      this.inputs[this.inputIndex - 1].focus();
-    }
+    this.moveFocus(-1);
   };
 
   /**
    * Moves the focus to the right input field.
    */
   public moveFocusRight = () => {
-    if (this.inputIndex !== this.inputs.length - 1) {
-      this.inputs[this.inputIndex + 1].focus();
-    }
+    this.moveFocus(1);
   };
 
   /**
@@ -226,7 +272,7 @@ class OTPInputHandler {
    * @param input - The current input field element.
    * @returns The index of the input field in the list.
    */
-  public getInputIndex(input: HTMLInputElement): number {
+  private getInputIndex(input: HTMLInputElement): number {
     return Array.from(this.inputs).indexOf(input);
   }
 
@@ -241,11 +287,13 @@ class OTPInputHandler {
   }
 }
 
-const otpHandler = new OTPInputHandler(".otp-input");
+window.onload = () => {
+  const otpHandler = new OTPInputHandler(".otp-input");
 
-// Single callback for multiple events:
-attachEvent("keydown, paste", ".otp-input", function (e: Event) {
-  (document.getElementById(
-    "otpCode"
-  ) as HTMLInputElement).value = otpHandler.getOTP();
-});
+  // Single callback for multiple events:
+  attachEvent("keydown, paste", ".otp-input", function (e: Event) {
+    (document.getElementById(
+      "otpCode"
+    ) as HTMLInputElement).value = otpHandler.getOTP();
+  });
+};
