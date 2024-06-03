@@ -1,81 +1,10 @@
+
 /*
 Copyright (c) 2023-2024 Jeff Oliveira
 OTP Input Field
-Version 2.0
+Version 2.1
 https://github.com/jeffoliveira977/OTP-input-system
 */
-
-// List of valid event types
-const validEvents = [
-  /* Keyboard Events */
-  "keydown",
-  "keyup",
-  "keypress",
-
-  /* Form Events */
-  "submit",
-  "input",
-  "change",
-  "focus",
-  "blur",
-
-  /* Clipboard Events */
-  "cut",
-  "copy",
-  "paste",
-
-  /* Mouse Events */
-  "click",
-  "mousedown",
-  "mouseup",
-  "mousemove",
-  "mouseenter",
-  "mouseleave"
-];
-
-/**
- * Attaches event listeners to elements matching the specified selector.
- *
- * @param events - A string containing one or more event types separated by commas,
- *                 or an array of event-function pairs.
- * @param selector - A selector for the target elements.
- * @param callbackOrFunctions - A function to be called when the event is triggered,
- *                             or an array of functions for each event type.
- */
-
- const attachEvent = (events, selector, callback) => {
-  // Handle different event and callback formats
-  let eventsList;
-  if (typeof events === "string") {
-    eventsList = events
-      .split(",")
-      .map(event => event.trim())
-      .filter(event => validEvents.includes(event))
-      .map(event => [event, callback]);
-  } else if (Array.isArray(events) && events.length > 0) {
-    eventsList = events.map(([event, callback]) => {
-      if (!validEvents.includes(event) || !typeof callback === "function") {
-        throw new Error("Invalid event or callback provided.");
-      }
-      return [event, callback];
-    })
-  } else {
-    throw new Error(
-      "Invalid events format. Expected string or array of event-function pairs."
-    );
-  }
-
-  // Attach event listeners for each event
-  eventsList.forEach(([event, callback]) => {
-    document.addEventListener(event, e => {
-      const target = e.target;
-      if (target.closest(selector)) {
-        // Call the callback function, setting `this` to the target
-        callback.call(target, e);
-      }
-    })
-  })
-}
 
 /**
  * OTPInputHandler class manages OTP (One-Time Password) input fields and provides event handling.
@@ -87,19 +16,51 @@ class OTPInputHandler {
    * @param selector - The CSS selector for OTP input fields.
    */
   constructor(selector) {
-    this.selector = selector;
-    this.inputIndex = 0;
-    this.alphaNumericPattern = /^[a-zA-Z0-9]$/;
-    this.inputs = document.querySelectorAll(this.selector);
-    this.attachEventHandlers();
+    if (selector) {
+      this.selector = selector;
+      this.inputs = document.querySelectorAll(selector);
+      if (this.inputs.length) {
+        this.inputIndex = 0;
+        this.alphaNumericPattern = /^[a-zA-Z0-9]$/;
+        this.attachEventHandlers();
+      } else {
+        console.error("No elements found for the provided selector!");
+      }
+    }
+  }
+
+  /**
+   * Attaches event listeners to elements matching the specified selector.
+   *
+   * @param events - A string containing one or more event types separated by commas.
+   * @param selector - A selector for the target elements.
+   * @param callback - A function to be called when the event is triggered.
+   */
+
+  attachEvent(events, selector, callback) {
+    const eventsList = events
+      .split(",")
+      .map((event) => event.trim())
+      .filter((event) => ["keydown", "paste"].includes(event));
+
+    // Attach event listeners for each event.
+    eventsList.forEach((event) => {
+      document.addEventListener(event, (e) => {
+        const target = e.target;
+        if (target.closest(selector)) {
+          // Call the callback function, setting `this` to the target.
+          callback.call(target, e);
+        }
+      });
+    });
   }
 
   /**
    * Attaches event handlers for OTP input fields.
    */
   attachEventHandlers() {
-    attachEvent("keydown", this.selector, this.handleKeyDown);
-    attachEvent("paste", this.selector, this.handlePaste);
+    this.attachEvent("keydown", this.selector, this.handleKeyDown);
+    this.attachEvent("paste", this.selector, this.handlePaste);
   }
 
   /**
@@ -109,14 +70,14 @@ class OTPInputHandler {
     const keyboard = e;
 
     if (keyboard.ctrlKey || keyboard.metaKey) {
-      // If Ctrl or Meta are pressed, return immediately
+      // If Ctrl or Meta are pressed, return immediately.
       return;
     } else {
-      // If neither Ctrl nor Meta are pressed, prevent the default behavior
+      // If neither Ctrl nor Meta are pressed, prevent the default behavior.
       e.preventDefault();
     }
 
-    // Get the index of the current input field
+    // Get the index of the current input field.
     this.inputIndex = this.getInputIndex(e.target);
     switch (keyboard.key) {
       case "Backspace":
@@ -125,7 +86,7 @@ class OTPInputHandler {
         break;
       case "Delete":
         this.inputs[this.inputIndex].value = "";
-        break
+        break;
       case "ArrowLeft":
         this.moveFocusLeft();
         break;
@@ -148,7 +109,7 @@ class OTPInputHandler {
         }
         break;
     }
-  }
+  };
 
   /**
    * Handles paste events for OTP input fields.
@@ -156,7 +117,7 @@ class OTPInputHandler {
   handlePaste = (e) => {
     e.preventDefault();
 
-    // Get the index of the current input field
+    // Get the index of the current input field.
     this.inputIndex = this.getInputIndex(e.target);
 
     const clipboardEvent = e;
@@ -169,7 +130,7 @@ class OTPInputHandler {
 
     if (pasteData) {
       // Checks if all pasted values are alphanumeric.
-      if (!pasteData.every(value => this.alphaNumericPattern.test(value))) {
+      if (!pasteData.every((value) => this.alphaNumericPattern.test(value))) {
         return;
       }
 
@@ -178,7 +139,7 @@ class OTPInputHandler {
         this.setInputValue(this.inputIndex + i, pasteData[i]);
       }
     }
-  }
+  };
 
   /**
    * Updates the list of input fields based on the current selector.
@@ -186,14 +147,6 @@ class OTPInputHandler {
    */
   updateInputs() {
     this.inputs = document.querySelectorAll(this.selector);
-  }
-
-  /**
-   * Checks if it is the last input field.
-   * @returns TRUE if it is the last field, otherwise false.
-   */
-  isLastInput() {
-    return this.inputIndex === this.inputs.length - 1;
   }
 
   /**
@@ -222,34 +175,34 @@ class OTPInputHandler {
    * Moves the focus between inputs based on the direction parameter.
    * @param direction: The direction to set the focus movement. Positive value for moving to the right, negative value for moving to the left.
    */
-  moveFocus = direction => {
+  moveFocus = (direction) => {
     const nextIndex = this.inputIndex + direction;
 
     if (nextIndex >= 0 && nextIndex < this.inputs.length) {
       this.inputs[nextIndex].focus();
     }
-  }
+  };
 
   /**
    * Moves the focus to the left input field.
    */
   moveFocusLeft = () => {
     this.moveFocus(-1);
-  }
+  };
 
   /**
    * Moves the focus to the right input field.
    */
   moveFocusRight = () => {
     this.moveFocus(1);
-  }
+  };
 
   /**
    * Checks if all OTP input fields have values.
    * @returns True if all fields are filled, otherwise false.
    */
   allFilled() {
-    return Array.from(this.inputs).every(input => input.value !== "");
+    return Array.from(this.inputs).every((input) => input.value !== "");
   }
 
   /**
@@ -266,17 +219,34 @@ class OTPInputHandler {
    * @returns The OTP value as a string.
    */
   getOTP() {
-    const otpValues = Array.from(this.inputs).map(input => input.value);
+    const otpValues = Array.from(this.inputs).map((input) => input.value);
 
     return otpValues.join("");
   }
+
+  /**
+   * Registers a callback to be executed on event listener (keydown and paste).
+   * @param callback - Function to be called with the current OTP value.
+   */
+  onInputEvent(callback) {
+    if (!this.selector) {
+      console.error("Selector is not defined!");
+      return;
+    }
+
+    this.attachEvent("keydown, paste", this.selector, (e) => {
+      callback(this.getOTP());
+    });
+  }
 }
 
+// Example of usage.
 window.onload = () => {
-  const otpHandler = new OTPInputHandler(".otp-input");
+  const otpInput = new OTPInputHandler(".otp-input");
 
-  // Single callback for multiple events:
-  attachEvent("keydown, paste", ".otp-input", function(e) {
-    document.getElementById("otpCode").value = otpHandler.getOTP();
-  })
-}
+  otpInput.onInputEvent((otpValue) => {
+    const otpElement = document.getElementById("otpCode");
+    otpElement.value = otpValue;
+  });
+};
+
