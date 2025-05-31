@@ -2,7 +2,12 @@
 
 # OTP Input System
 
-The OTP Input System is a JavaScript library that simplifies the implementation of One-Time Password (OTP) input fields in your web applications. With this library, you can create highly interactive and user-friendly OTP input fields, allowing users to efficiently and securely enter OTP codes.
+The OTP Input System is a JavaScript library that simplifies the implementation of One-Time Password (OTP) input fields in your web applications.
+
+## Demo
+
+[![View on CodePen](https://img.shields.io/badge/View%20on-CodePen-blue?style=for-the-badge&logo=codepen)](https://codepen.io/Ton-Miles/pen/GRPMqGN)
+![Demo (opcional)](example.gif)
 
 ## Key Features
 
@@ -16,20 +21,60 @@ The OTP Input System is a JavaScript library that simplifies the implementation 
 
 ## Quick Start
 
-1. **Installation:** Include the JavaScript library in your web page.
+- **HTML Structure** Include the js file in your <body> or <head>.
+- **JavaScript Initialization** In your script.js file, initialize the OTPInputHandler and register a callback to react to OTP changes.
 
-2. **Initialization:** Create instances of the `OTPInputHandler` class for the OTP input fields you wish to use.
-
-3. **Easy Integration:** Seamlessly integrate OTP input fields into your website or app, providing users with a secure and convenient input experience.
-
-[![View on CodePen](https://img.shields.io/badge/View%20on-CodePen-blue?style=for-the-badge&logo=codepen)](https://codepen.io/Ton-Miles/pen/GRPMqGN)
-
-Example
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Input Example</title>
+    
+    <link href="styles.css" rel="stylesheet">
+    <script src="otp-input.js"></script> 
+    <script src="script.js" defer></script> 
+</head>
+<body>
+    <div class="otp">
+        <div class="otp-input">
+        </div>
+        <div class="otp-input">
+        </div>
+        <div class="otp-input">
+        </div>
+        <div class="otp-input">
+        </div>
+        <div class="otp-input">
+        </div>
+        <div class="otp-input">
+        </div>
+    </div>
+</body>
+</html>
+```
 
 ```javascript
-// Create an instance of the OTPInputHandler class
-const otpHandler = new OTPInputHandler(".otp-input");
+// Create an instance of the OTPInputHandler
+const otpInput = new OTPInputHandler(".otp-input");
 
 // Update the OTP code field with the entered OTP value
-const otpCodeField = document.getElementById("otpCode");
-otpCodeField.value = otpHandler.getOTP();
+otpInput.onInputEvent((otpCode) => {
+    console.log("Current OTP Code:", otpCode);
+    
+    // Update the value of your OTP code field
+    if (otpCodeField) {
+        otpCodeField.value = otpCode;
+    }
+});
+```
+
+### Class Functions
+
+| Function | Description |
+|--------|-------------|
+| `updateInputs` | This function should be called if you dynamically add or remove OTP input fields from the DOM (e.g., via AJAX) |
+| `allFilled` | Checks if all OTP input fields have values. Returns true if all fields are filled, otherwise false |
+| `getOTP` | Retrieves the complete OTP value by concatenating the values from all input fields. It returns the OTP as a single string |
+| `onInputEvent` | Registers a callback function to be executed whenever there's an input event (keypress or paste) in any of the OTP fields |
