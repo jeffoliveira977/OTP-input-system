@@ -6,8 +6,9 @@ The OTP Input System is a JavaScript library that simplifies the implementation 
 
 ## Demo
 
-[![View on CodePen](https://img.shields.io/badge/View%20on-CodePen-blue?style=for-the-badge&logo=codepen)](https://codepen.io/Ton-Miles/pen/GRPMqGN)
 ![Demo (opcional)](example.gif)
+
+[![View on CodePen](https://img.shields.io/badge/View%20on-CodePen-blue?style=for-the-badge&logo=codepen)](https://codepen.io/Ton-Miles/pen/GRPMqGN)
 
 ## Key Features
 
