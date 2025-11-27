@@ -4,9 +4,7 @@
 
 The OTP Input System is a JavaScript library that simplifies the implementation of One-Time Password (OTP) input fields in your web applications.
 
-## Demo
-
-![Demo (opcional)](example.gif)
+![Demo (opcional)](example.png)
 
 [![View on CodePen](https://img.shields.io/badge/View%20on-CodePen-blue?style=for-the-badge&logo=codepen)](https://codepen.io/Ton-Miles/pen/GRPMqGN)
 
